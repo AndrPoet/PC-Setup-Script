@@ -1,4 +1,4 @@
-<#
+﻿<#
 
  Powershell Windows Setup Script by Andre Pöttgen
  Execution Policy: Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
@@ -375,7 +375,7 @@ $BackupSkriptInhalt = @'
 $ZielOrdner = "__BACKUP_ZIEL__"
 New-Item -Path $ZielOrdner -ItemType Directory -Force | Out-Null
 
-#Registry-Backup erstellen
+#Registry-Backup er
 $Datum = Get-Date -Format "yyyy-MM-dd_HH-mm"
 $Datei = "$ZielOrdner\HKCU_Backup_$Datum.reg"
 
@@ -439,7 +439,7 @@ if ($repo -and $repo.InstallationPolicy -ne 'Trusted') {
 
 # 4. PSWindowsUpdate Modul prüfen, ggf. installieren und importieren
 if (-not (Get-Module -ListAvailable -Name PSWindowsUpdate)) {
-    Write-Host " Installiere Modul 'PSWindowsUpdate'..." -ForegroundColor Yellow
+    Write-Host "Installiere Modul 'PSWindowsUpdate'..." -ForegroundColor Yellow
     Install-Module -Name PSWindowsUpdate -Force -AllowClobber
 }
 Import-Module PSWindowsUpdate
@@ -469,8 +469,7 @@ Write-Host "Das Protokoll wurde gespeichert unter: $LogPath"
 Stop-Transcript
 
 Write-Host "Der Computer startet jetzt neu um alle änderungen sauber zu übernehmen!" -ForegroundColor Red
-Write-Host "Viel Spaß mit einem voll Eingerichteten sauberen Windows! :)"
+Write-Host "Viel Spaß mit einem voll Eingerichteten sauberen Windows!"
 
 Start-Sleep -Seconds 10
 Restart-Computer -Force
-
