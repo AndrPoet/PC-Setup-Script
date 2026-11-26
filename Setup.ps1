@@ -16,7 +16,7 @@ Write-Host "--------------------------------------------------------------------
 
 #Prüfen, ob Powershell als Administrator ausgeführt wird
 if (-not([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
-	Write-Warning "Bitte starte dieses PowerShell Script als ADMINISTRATOR!"
+	Write-Warning "Bitte starte dieses PowerShell Script als ADMINISTRATOR!" -ForegroundColor Red
 	Pause
 	Exit
 }
@@ -29,7 +29,7 @@ try {
     Checkpoint-Computer -Description "Vor Setup-Skript" -RestorePointType "MODIFY_SETTINGS" -ErrorAction Stop
     Write-Host " -> Wiederherstellungspunkt erstellt." -ForegroundColor Green
 } catch {
-    Write-Warning "Wiederherstellungspunkt konnte nicht erstellt werden (evtl. wurde heute schon einer angelegt)."
+    Write-Warning "Wiederherstellungspunkt konnte nicht erstellt werden (evtl. wurde heute schon einer angelegt)." -ForegroundColor Red
 }
 
 #Logging starten
@@ -430,7 +430,7 @@ Write-Host "[OK] Wöchentliches HKCU-Backup wurde unter '$VollstaendigerSkriptPf
 # 7. WINDOWS-UPDATE
 #============================================================================================================================================================================================================
 
-Write-Host "`n[5/5] Installiere alle ausstehenden Windows Updates"
+Write-Host "`n[5/5] Installiere alle ausstehenden Windows Updates" -ForegroundColor Cyan
 
 Write-Host "Starte Vorbereitung für Windows Updates..." -ForegroundColor Cyan
 
@@ -473,16 +473,16 @@ if ($Updates.Count -eq 0) {
 # 8. ABSCHLUSS & AUFRÄUMEN
 #============================================================================================================================================================================================================
 
-Write-Host "Alle Programme erfolgreich installiert!"
-Write-Host "Alle Ordner erfolgreich erstellt!"
-Write-Host "Alle Einstellungen erfolgreich übernommen!"
+Write-Host "Alle Programme erfolgreich installiert!" -ForegroundColor Green
+Write-Host "Alle Ordner erfolgreich erstellt!" -ForegroundColor Green
+Write-Host "Alle Einstellungen erfolgreich übernommen!" -ForegroundColor Green
 
 Write-Host "`n=== Einrichtung abgeschlossen! ===" -ForegroundColor Cyan
-Write-Host "Das Protokoll wurde gespeichert unter: $LogPath"
+Write-Host "Das Protokoll wurde gespeichert unter: $LogPath" -ForegroundColor Cyan
 Stop-Transcript
 
 Write-Host "Der Computer startet jetzt neu um alle änderungen sauber zu übernehmen!" -ForegroundColor Red
-Write-Host "Viel Spaß mit einem voll Eingerichteten sauberen Windows!"
+Write-Host "Viel Spaß mit einem voll Eingerichteten sauberen Windows!" -ForegroundColor Green
 
 Start-Sleep -Seconds 10
 Restart-Computer -Force
