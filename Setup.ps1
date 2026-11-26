@@ -146,6 +146,51 @@ Start-Sleep -Seconds 1
 
 Start-Sleep -Seconds 1
 
+function Ensure-WinGet {
+    [CmdletBinding()]
+    param ()
+
+    Write-Host "Prüfe, ob WinGet installiert ist..." -ForegroundColor Cyan
+
+    # Prüfen, ob der Befehl 'winget' verfügbar ist
+    if (Get-Command winget -ErrorAction SilentlyContinue) {
+        $version = winget --version
+        Write-Host "WinGet ist bereits installiert (Version: $version)." -ForegroundColor Green
+        Write-Host "Suche nach Updates für WinGet (Microsoft.AppInstaller)..." -ForegroundColor Cyan
+
+        # Aktualisiert den App-Installer lautlos, falls eine neuere Version vorliegt
+        winget upgrade --id Microsoft.AppInstaller --exact --silent --accept-package-agreements --accept-source-agreements
+    }
+    else {
+        Write-Warning "WinGet wurde nicht gefunden. Starte Installation..."
+        try {
+            # Lädt das aktuelle Paket über den offiziellen Microsoft-Link und installiert es
+            Add-AppxPackage -Path "https://aka.ms" -ErrorAction Stop
+            
+            # Kurze Pause, damit die Registrierung abgeschlossen wird
+            Start-Sleep -Seconds 2
+
+            if (Get-Command winget -ErrorAction SilentlyContinue) {
+                $newVersion = winget --version
+                Write-Host "WinGet wurde erfolgreich installiert (Version: $newVersion)." -ForegroundColor Green
+            }
+            else {
+                Write-Warning "Installation abgeschlossen, aber 'winget' wird noch nicht erkannt. Bitte PowerShell neu starten."
+            }
+        }
+        catch {
+            Write-Error "Fehler bei der Installation von WinGet: $_"
+            Write-Host "Hinweis: Auf Systemen ohne Microsoft Store müssen evtl. vorab VCLibs und Microsoft.UI.Xaml installiert werden." -ForegroundColor Yellow
+        }
+    }
+}
+
+# Funktion aufrufen:
+Ensure-WinGet
+
+
+Start-Sleep -Seconds 1
+
 Write-Host "`n[2/5] Installiere Software mit winget..." -ForegroundColor Yellow
 
 # Prüfen, ob winget verfügbar ist
