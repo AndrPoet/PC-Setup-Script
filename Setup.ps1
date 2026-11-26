@@ -104,6 +104,9 @@ $AppsToInstall =@(
 	"VideoLAN.VLC"
 )
 
+#WSL Distro
+$WSLDistro ="Debian"
+
 #Ordner-Struktur
 $FoldersToCreate =@(
 	"$env:USERPROFILE\Projekte",
@@ -330,9 +333,9 @@ Clear-DnsClientCache
 	Write-Host " -> DNS-Server auf Cloudflare geändert." -ForegroundColor Green
 
 #WSL installieren
-wsl --install -d Debian
+wsl --install -d $WSLDistro
 
-	Write-Host " -> WSL installiert. Distribution: Debian(latest)" -ForegroundColor Green
+	Write-Host " -> WSL installiert. Distribution: $WSLDistro" -ForegroundColor Green
 
 #Transparenzeffekte deaktivieren
 Set-RegistryValue -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" -Name "EnableTransparency" -Value 0 -Type DWord
