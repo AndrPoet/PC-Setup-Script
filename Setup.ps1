@@ -21,6 +21,8 @@ if (-not([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentit
 	Exit
 }
 
+Start-Sleep -Seconds 1
+
 #Wiederherstellungspunkt erstellen
 # Computerschutz auf C: sicherheitshalber aktivieren
 Enable-ComputerRestore -Drive "C:\" -ErrorAction SilentlyContinue
@@ -32,10 +34,14 @@ try {
     Write-Warning "Wiederherstellungspunkt konnte nicht erstellt werden (evtl. wurde heute schon einer angelegt)." -ForegroundColor Red
 }
 
+Start-Sleep -Seconds 1
+
 #Logging starten
 $LogPath ="$env:USERPROFILE\Desktop\Setup-Log_$(Get-Date -Format 'dd-MM-yyyy_HH-mm').txt"
 Start-Transcript -Path $LogPath -Append
 Write-Host "=== Einrichtung gestartet am $(Get-Date) ===" -ForegroundColor Cyan
+
+Start-Sleep -Seconds 1
 
 #============================================================================================================================================================================================================
 # 2.KONFIGURATION 
@@ -120,6 +126,8 @@ $FoldersToCreate =@(
 # 2. ORDNERSTRUKTUR ERSTELLEN
 #============================================================================================================================================================================================================
 
+Start-Sleep -Seconds 1
+
 Write-Host "`n[1/5] Erstelle Ordnerstruktur..." -ForegroundColor Yellow
 foreach ($Folder in $FoldersToCreate) {
 	if (-not (Test-Path -Path $Folder)) {
@@ -130,9 +138,13 @@ foreach ($Folder in $FoldersToCreate) {
 	}
 }
 
+Start-Sleep -Seconds 1
+
 #============================================================================================================================================================================================================
 # 4. SOFTWARE INSTALLATION (via Winget)
 #============================================================================================================================================================================================================
+
+Start-Sleep -Seconds 1
 
 Write-Host "`n[2/5] Installiere Software mit winget..." -ForegroundColor Yellow
 
@@ -146,9 +158,13 @@ if (Get-Command winget -ErrorAction SilentlyContinue) {
     Write-Warning "winget wurde nicht gefunden! Bitte App-Installer über den Microsoft Store aktualisieren."
 }
 
+Start-Sleep -Seconds 1
+
 #============================================================================================================================================================================================================
 # 5. WINDOWS EINSTELLUNGEN ANPASSEN
 #============================================================================================================================================================================================================
+
+Start-Sleep -Seconds 1
 
 Write-Host "`n[3/5] Passe Windows-Einstellunen an..." -ForegroundColor Yellow
 
@@ -157,7 +173,7 @@ $ZielOrdner = "C:\Registry-Backups"
 New-Item -Path $ZielOrdner -ItemType Directory -Force | Out-Null
 
 $Datum = Get-Date -Format "dd-MM-yyyy_HH-mm"
-$Datei = "$ZielOrdner\HKCU_Backup_$Datum.reg"
+$Datei = "$ZielOrdner\HKCU_Backup_Frisch-aufgesetzt_$Datum.reg"
 
 reg export "HKCU" $Datei /y
 
@@ -173,17 +189,20 @@ function Set-RegistryValue {
 Set-RegistryValue -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "HideFileExt" -Value 0
 
 	Write-Host "  -> Dateiendungen eingeblendet." -ForegroundColor Green
+	Start-Sleep -Seconds 1
 
 # Versteckte Dateien im Explorer anzeigen (1 = anzeigen, 2 = ausblenden)
 Set-RegistryValue -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "Hidden" -Value 1
 
 	Write-Host "  -> Versteckte Dateien eingeblendet." -ForegroundColor Green
+	Start-Sleep -Seconds 1
 
 # Dark Mode für Apps und System aktivieren (0 = Dark, 1 = Light)
 Set-RegistryValue -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" -Name "AppsUseLightTheme" -Value 0
 Set-RegistryValue -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" -Name "SystemUsesLightTheme" -Value 0
 
 	Write-Host "  -> Dark Mode aktiviert." -ForegroundColor Green
+	Start-Sleep -Seconds 1
 
 # Mauszeigerbeschleunigung deaktivieren (Werte müssen Strings sein)
 Set-RegistryValue -Path "HKCU:\Control Panel\Mouse" -Name "MouseSpeed" -Value "0" -Type String
@@ -191,16 +210,19 @@ Set-RegistryValue -Path "HKCU:\Control Panel\Mouse" -Name "MouseThreshold1" -Val
 Set-RegistryValue -Path "HKCU:\Control Panel\Mouse" -Name "MouseThreshold2" -Value "0" -Type String
 
 	Write-Host "  -> Mauszeigergeschleunigung deaktiviert." -ForegroundColor Green
+	Start-Sleep -Seconds 1
 
 # Suche aus der Taskleiste entfernen (0 = Aus, 1 = Nur Symbol, 2 = Suchfeld)
 Set-RegistryValue -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search" -Name "SearchboxTaskbarMode" -Value 0 -Type DWord
 
 	Write-Host "  -> Suche aus Taskleiste entfernt." -ForegroundColor Green
+	Start-Sleep -Seconds 1
 
 # Taskleiste links ausrichten (Windows 11: 0 = Links, 1 = Zentriert)
 Set-RegistryValue -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarAl" -Value 0 -Type DWord
 
 	Write-Host "  -> Taskleiste Links ausgerichtet." -ForegroundColor Green
+	Start-Sleep -Seconds 1
 
 # System-Icons aus Taskleiste entfernen (Widgets, Chat, Aktive Anwendungen)
 Set-RegistryValue -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarDa" -Value 0 -Type DWord
@@ -208,48 +230,57 @@ Set-RegistryValue -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explore
 Set-RegistryValue -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowTaskViewButton" -Value 0 -Type DWord
 
 	Write-Host "  -> System-Icons aus Taskleiste entfernt." -ForegroundColor Green
+	Start-Sleep -Seconds 1
 
 # Klassisches Rechtsklick-Menü 
 New-Item -Path "HKCU:\Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\InprocServer32" -Force | Out-Null
 Set-RegistryValue -Path "HKCU:\Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\InprocServer32" -Name "(Default)" -Value ""
 
-	Write-Host " -> Klassisches Rechtsklick-Menü aktiviert." -ForegroundColor Green
+	Write-Host " -> Klassisches Rechtsklick-Menü aktiviert." -ForegroundColor GreenStart-Sleep -Seconds 1
+	Start-Sleep -Seconds 1
 
 # Sekunden in der Taskleisten-Uhr anzeigen
 Set-RegistryValue -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowSecondsInSystemClock" -Value 1 -Type DWord
 
 	Write-Host " -> Uhrzeit in Sekunden aktiviert." -ForegroundColor Green
+	Start-Sleep -Seconds 1
 
 # Datei-Explorer mit "Dieser PC" öffnen
 Set-RegistryValue -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "LaunchTo" -Value 1 -Type DWord
 
 	Write-Host " -> Dieser PC Ansicht in Explorer aktiviert." -ForegroundColor Green
+	Start-Sleep -Seconds 1
 
 # Bekannte Dateierweiterungen einblenden
 Set-RegistryValue -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "HideFileExt" -Value 0 -Type DWord
 
 	Write-Host " -> Dateiendungen eingeblendet." -ForegroundColor Green
+	Start-Sleep -Seconds 1
 
 # Versteckte Dateien und Ordner anzeigen
 Set-RegistryValue -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "Hidden" -Value 1 -Type DWord
 
 	Write-Host " -> Versteckte Dateien eingeblendet." -ForegroundColor Green
+	Start-Sleep -Seconds 1
 
 # Kürzlich verwendete Dateien & Ordner im Schnellzugriff deaktivieren
 Set-RegistryValue -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer" -Name "ShowRecent" -Value 0 -Type DWord
 Set-RegistryValue -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer" -Name "ShowFrequent" -Value 0 -Type DWord
 
 	Write-Host " -> Kürzlich verwendete Dateien & Ordner im Schnellzugiff deaktiviert." -ForegroundColor Green
+	Start-Sleep -Seconds 1
 
 # Bing-Websuche im Startmenü deaktivieren
 Set-RegistryValue -Path "HKCU:\Software\Policies\Microsoft\Windows\Explorer" -Name "DisableSearchBoxSuggestions" -Value 1 -Type DWord
 
 	Write-Host " -> Bing-Websuche im Startmenü deaktiviert." -ForegroundColor Green
+	Start-Sleep -Seconds 1
 
 # Werbe-ID deaktivieren
 Set-RegistryValue -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo" -Name "Enabled" -Value 0 -Type DWord
 
 	Write-Host " -> Werbe-ID deaktiviert." -ForegroundColor Green
+	Start-Sleep -Seconds 1
 
 # Vorgeschlagene Apps und Werbung blockieren
 Set-RegistryValue -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "SubscribedContent-338388Enabled" -Value 0 -Type DWord
@@ -257,66 +288,79 @@ Set-RegistryValue -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Content
 Set-RegistryValue -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "SystemPaneSuggestionsEnabled" -Value 0 -Type DWord
 
 	Write-Host " -> Vorgeschlagene Apps und Werbung blockiert." -ForegroundColor Green
+	Start-Sleep -Seconds 1
 
 # Windows Copilot vollständig deaktivieren
 Set-RegistryValue -Path "HKCU:\Software\Policies\Microsoft\Windows\WindowsCopilot" -Name "TurnOffWindowsCopilot" -Value 1 -Type DWord
 
 	Write-Host " -> Windows Copilot vollständig deaktiviert." -ForegroundColor Green
+	Start-Sleep -Seconds 1
 
 # Telemetrie-Datensammlung auf Minimum reduzieren 
 Set-RegistryValue -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection" -Name "AllowTelemetry" -Value 0 -Type DWord
 
 	Write-Host " -> Telemetrie und Datensammlung auf ein Minimum reduziert." -ForegroundColor Green
+	Start-Sleep -Seconds 1
 
 # Menü-Verzögerung auf 0 setzen
 Set-RegistryValue -Path "HKCU:\Control Panel\Desktop" -Name "MenuShowDelay" -Value "0" -Type String
 
 	Write-Host " -> Menü-Verzögerung auf 0 gesetzt." -ForegroundColor Green
+	Start-Sleep -Seconds 1
 
 # Verknüpfung-Suffix entfernen
 Set-RegistryValue -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer" -Name "link" -Value ([byte[]](0x00,0x00,0x00,0x00)) -Type Binary
 
 	Write-Host " -> Verknüpfung Suffix entfernt." -ForegroundColor Green
+	Start-Sleep -Seconds 1
 
 # Zeigt detaillierte Infos beim Starten, Herunterfahren, An-/Abmelden und bei Updates 
 Set-RegistryValue -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" -Name "VerboseStatus" -Value 1 -Type DWord
 
 	Write-Host " -> Detailliertere Informationen aktiviert." -ForegroundColor Green
+	Start-Sleep -Seconds 1
 
 # Startmenü-Layout: Mehr angeheftete Elemente zeigen (1 = Mehr Pins, 0 = Standard, 2 = Mehr Empfehlungen)
 Set-RegistryValue -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "Start_Layout" -Value 1 -Type DWord
 
 	Write-Host " -> Startmenü-Layout verändert." -ForegroundColor Green
+	Start-Sleep -Seconds 1
 
 # Zuletzt hinzugefügte Apps im Startmenü ausblenden
 Set-RegistryValue -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "Start_TrackProgs" -Value 0 -Type DWord
 
 	Write-Host " -> Zuletzt hinzugefügte Apps im Startmenü deaktiviert." -ForegroundColor Green
+	Start-Sleep -Seconds 1
 
 # Empfohlene Dateien / zuletzt geöffnete Elemente im Startmenü & Explorer deaktivieren
 Set-RegistryValue -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "Start_TrackDocs" -Value 0 -Type DWord
 
 	Write-Host " -> Empfohlene Dateien in Startmenü & Explorer deaktiviert." -ForegroundColor Green
+	Start-Sleep -Seconds 1
 
 # Kontobezogene Benachrichtigungen (z.B. Microsoft-Konto-Werbung) im Startmenü ausblenden
 Set-RegistryValue -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "Start_AccountNotifications" -Value 0 -Type DWord
 
 	Write-Host " -> Werbebenachichtigungen deaktiviert." -ForegroundColor Green
+	Start-Sleep -Seconds 1
 
 # Snap-Flyout deaktivieren, wenn man mit der Maus über das Maximieren-Symbol fährt
 Set-RegistryValue -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "EnableSnapAssistFlyout" -Value 0 -Type DWord
 
 	Write-Host " -> Snap-Flyout deaktiviert." -ForegroundColor Green
+	Start-Sleep -Seconds 1
 
 # Snap-Leiste am oberen Bildschirmrand deaktivieren, wenn man ein Fenster nach oben zieht
 Set-RegistryValue -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "EnableSnapBar" -Value 0 -Type DWord
 
 	Write-Host " -> Snap-Leiste deaktiviert." -ForegroundColor Green
+	Start-Sleep -Seconds 1
 
 # Snap-Assistent (Vorschläge für andere offene Fenster nach dem Andocken) deaktivieren
 Set-RegistryValue -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "SnapAssist" -Value 0 -Type DWord
 
 	Write-Host " -> Snap-Assistent deaktiviert." -ForegroundColor Green
+	Start-Sleep -Seconds 1
 
 # Weitere Einstellungen hier ergänzen...
 
@@ -331,29 +375,35 @@ foreach ($Adapter in $ActiveAdapters) {
 Clear-DnsClientCache
 
 	Write-Host " -> DNS-Server auf Cloudflare geändert." -ForegroundColor Green
+	Start-Sleep -Seconds 1
 
 #WSL installieren
 wsl --install -d $WSLDistro
 
 	Write-Host " -> WSL installiert. Distribution: $WSLDistro" -ForegroundColor Green
+	Start-Sleep -Seconds 1
 
 #Transparenzeffekte deaktivieren
 Set-RegistryValue -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" -Name "EnableTransparency" -Value 0 -Type DWord
 
 	Write-Host " -> Transparenzeffekte deaktiviert." -ForegroundColor Green
+	Start-Sleep -Seconds 1
 
 #Ausführliche Bluescreen meldungen aktivieren
 Set-RegistryValue -Path "HKLM:\SYSTEM\CurrentControlSet\Control\CrashControl" -Name "DisplayParameters" -Value 1 -Type DWord
 
 	Write-Host " -> Ausführliche Bluescreen meldungen aktiviert." -ForegroundColor Green
+	Start-Sleep -Seconds 1
 
 #Sticky Keys deaktivieren
 $path = "HKCU:\Control Panel\Accessibility\StickyKeys"
 Set-RegistryValue -Path $path -Name "Flags" -Value "506"
 
 	Write-Host " -> Sticky Keys deaktiviert." -ForegroundColor Green
+	Start-Sleep -Seconds 1
 
 Write-Host "`n[4/5] Starte Windows-Explorer neu, um Änderungen zu übernehmen..." -ForegroundColor Yellow
+Start-Sleep -Seconds 1
 Stop-Process -Name explorer -Force
 Start-Process explorer
 
@@ -362,9 +412,11 @@ $ZielOrdner = "C:\Registry-Backups"
 New-Item -Path $ZielOrdner -ItemType Directory -Force | Out-Null
 
 $Datum = Get-Date -Format "dd-MM-yyyy_HH-mm"
-$Datei = "$ZielOrdner\HKCU_Backup_$Datum.reg"
+$Datei = "$ZielOrdner\HKCU_Backup_Änderungen-Vorgenommen_$Datum.reg"
 
 reg export "HKCU" $Datei /y
+
+Start-Sleep -Seconds 1
 
 #========================================================
 # 6.WÖCHENTLICHES HKCU REGISTRY BACKUP
@@ -425,6 +477,7 @@ $Settings  = New-ScheduledTaskSettingsSet -StartWhenAvailable
 Register-ScheduledTask -TaskName $AufgabenName -Action $Aktion -Trigger $Trigger -Principal $Principal -Settings $Settings -Force | Out-Null
 
 Write-Host "[OK] Wöchentliches HKCU-Backup wurde unter '$VollstaendigerSkriptPfad' eingerichtet." -ForegroundColor Green
+Start-Sleep -Seconds 1
 
 #============================================================================================================================================================================================================
 # 7. WINDOWS-UPDATE
@@ -469,6 +522,8 @@ if ($Updates.Count -eq 0) {
     Install-WindowsUpdate -MicrosoftUpdate -AcceptAll -IgnoreReboot
 }
 
+Start-Sleep -Seconds 1
+
 #============================================================================================================================================================================================================
 # 8. ABSCHLUSS & AUFRÄUMEN
 #============================================================================================================================================================================================================
@@ -476,10 +531,12 @@ if ($Updates.Count -eq 0) {
 Write-Host "Alle Programme erfolgreich installiert!" -ForegroundColor Green
 Write-Host "Alle Ordner erfolgreich erstellt!" -ForegroundColor Green
 Write-Host "Alle Einstellungen erfolgreich übernommen!" -ForegroundColor Green
+Start-Sleep -Seconds 1
 
 Write-Host "`n=== Einrichtung abgeschlossen! ===" -ForegroundColor Cyan
 Write-Host "Das Protokoll wurde gespeichert unter: $LogPath" -ForegroundColor Cyan
 Stop-Transcript
+Start-Sleep -Seconds 1
 
 Write-Host "Der Computer startet jetzt neu um alle änderungen sauber zu übernehmen!" -ForegroundColor Red
 Write-Host "Viel Spaß mit einem voll Eingerichteten sauberen Windows!" -ForegroundColor Green
